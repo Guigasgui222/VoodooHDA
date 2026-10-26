@@ -58,6 +58,16 @@ bool    VoodooHDAEngine::driverDesiresHiResSampleIntervals(void) { return false;
 /******************************************************************************************/
 /******************************************************************************************/
 //const AbsoluteTime AbsoluteTime_zero = 0;
+Float32 VoodooHDAEngine::swGainFromLevel(SInt32 level)
+{
+	if (level < 0)
+		level = 0;
+	if (level > 100)
+		level = 100;
+	Float32 g = (Float32)level / 100.0f;
+	return g * g;
+}
+
 bool VoodooHDAEngine::initWithChannel(Channel *channel)
 {
 	bool result = false;
@@ -68,6 +78,10 @@ bool VoodooHDAEngine::initWithChannel(Channel *channel)
 		goto done;
 
 	mChannel = channel;
+	mSwVolume = false;
+	mSwMuted = false;
+	mSwGainL = 1.0f;
+	mSwGainR = 1.0f;
 
 	result = true;
 done:
@@ -890,20 +904,35 @@ bool VoodooHDAEngine::createAudioControls()
 	idupper = mChannel->streamId << 16;
 
 	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {
-		/*
-		 * Some digital pin complexes have mute control
-		 */
-		if (haveDigitalMuteControl(initOssMask))
-			goto createMuteControl;
-		else
-			goto createSelectorControl;
+		if (direction == kIOAudioStreamDirectionOutput) {
+			/*
+			 * Digital (HDMI/DP) outputs have no hardware volume: expose a
+			 * software volume + software mute so macOS can use the volume keys.
+			 */
+			mSwVolume = true;
+			mSwMuted = false;
+			logMsg("VoodooHDAEngine[%p]: software volume enabled for digital output\n", this);
+			mSwGainL = mSwGainR = swGainFromLevel(mDevice->mMixerDefaults[initOssDev]);
+		} else {
+			/*
+			 * Some digital pin complexes have mute control
+			 */
+			if (haveDigitalMuteControl(initOssMask))
+				goto createMuteControl;
+			else
+				goto createSelectorControl;
+		}
 	}
 
 	minMaxDb = getMinMaxDb(initOssMask);
 	minDb = (IOFixed) (minMaxDb >> 32);
 	maxDb = (IOFixed) (minMaxDb & ~0UL);
 
-	if ((minDb == ~0L) || (maxDb == ~0L)) {
+	if (mSwVolume) {
+		// software volume range: about -40 dB .. 0 dB
+		minDb = static_cast<int>(static_cast<unsigned>(-40) << 16);
+		maxDb = 0 << 16;
+	} else if ((minDb == ~0L) || (maxDb == ~0L)) {
 		//logMsg("warning: found invalid min/max dB (using default -22.5 -> 0.0dB range)\n"); //-22.5 -> 0.0
 		minDb = static_cast<int>(static_cast<unsigned>(-22) << 16) + (65536 / 2);
 		maxDb = 0 << 16;
@@ -1062,6 +1091,14 @@ IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 ol
 	if(mVerbose >2)
 		errorMsg("VoodooHDAEngine[%p]::volumeChanged(%p, %ld, %ld)\n", this, volumeControl, (long int)oldValue, (long int)newValue);
 
+	if (volumeControl && mSwVolume) {
+		if (volumeControl->getChannelID() == 1)
+			mSwGainL = swGainFromLevel(newValue);
+		else if (volumeControl->getChannelID() == 2)
+			mSwGainR = swGainFromLevel(newValue);
+		return kIOReturnSuccess;
+	}
+
 	if (volumeControl) {
 
 		int ossDev = ( getEngineDirection() == kIOAudioStreamDirectionOutput) ? SOUND_MIXER_VOLUME:
@@ -1130,6 +1167,11 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
 	if(mVerbose >2)
 		errorMsg("VoodooHDAEngine[%p]::outputMuteChanged(%p, %ld, %ld)\n", this, muteControl, (long int)oldValue, (long int)newValue);
     
+	if (mSwVolume) {
+		mSwMuted = (newValue != 0);
+		return kIOReturnSuccess;
+	}
+
 	int ossDev = ( getEngineDirection() == kIOAudioStreamDirectionOutput) ? SOUND_MIXER_VOLUME:
 																			SOUND_MIXER_MIC;
     

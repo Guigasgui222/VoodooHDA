@@ -3765,6 +3765,20 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 #endif
 
 
+	if (mSwVolume && (streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
+		// software volume / mute for digital outputs without hardware volume
+		const Float32 gl = mSwMuted ? 0.0f : mSwGainL;
+		const Float32 gr = mSwMuted ? 0.0f : mSwGainR;
+		const UInt32 nch = streamFormat->fNumChannels ? streamFormat->fNumChannels : 2;
+		if (gl != 1.0f || gr != 1.0f) {
+			for (UInt32 i = 0, c = 0; i < numSamples; i++) {
+				floatMixBuf[i] *= (c == 1) ? gr : gl;
+				if (++c >= nch)
+					c = 0;
+			}
+		}
+	}
+
 	bool Stereo = mChannel->useStereo;
 	int base = mChannel->StereoBase; 
 	if (base) base = mChannel->StereoBase * 2 - 14;
