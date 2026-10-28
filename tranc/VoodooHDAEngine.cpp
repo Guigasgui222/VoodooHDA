@@ -58,13 +58,13 @@ bool    VoodooHDAEngine::driverDesiresHiResSampleIntervals(void) { return false;
 /******************************************************************************************/
 /******************************************************************************************/
 //const AbsoluteTime AbsoluteTime_zero = 0;
-Float32 VoodooHDAEngine::swGainFromLevel(SInt32 level)
+float VoodooHDAEngine::swGainFromLevel(SInt32 level)
 {
 	if (level < 0)
 		level = 0;
 	if (level > 100)
 		level = 100;
-	Float32 g = (Float32)level / 100.0f;
+	float g = (float)level / 100.0f;
 	return g * g;
 }
 

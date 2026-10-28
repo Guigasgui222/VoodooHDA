@@ -41,16 +41,16 @@ extern "C" {
 #define FLOATLIB			FALSE
 
 #if FLOATLIB
-void CoeffsFilterOrder2 (Float32 *Coeff, Float32 CutOffFreq, Float32 AttAtCutOffFreq , Float64 SamplingRate);
+void CoeffsFilterOrder2 (float *Coeff, float CutOffFreq, float AttAtCutOffFreq , Float64 SamplingRate);
 #else
-Boolean CoeffsFilterOrder2Table (Float32 *Coeff, UInt32 samplingRate);
+Boolean CoeffsFilterOrder2Table (float *Coeff, UInt32 samplingRate);
 #endif
-void MonoFilter (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 samplingRate);
-	void StereoFilter (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue);
+void MonoFilter (float *in, float *low, float *high, UInt32 frames, UInt32 samplingRate);
+	void StereoFilter (float *in, float *low, float *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue);
 // aml 2.21.02 added new stereo filter
-void StereoFilter4thOrder (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 samplingRate, PreviousValues *section1State, PreviousValues *section2State);
+void StereoFilter4thOrder (float *in, float *low, float *high, UInt32 frames, UInt32 samplingRate, PreviousValues *section1State, PreviousValues *section2State);
 // aml 2.21.02 added new stereo filter with phase compensation
-void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 samplingRate, PreviousValues *section1State, PreviousValues *section2State, PreviousValues *phaseCompState);
+void StereoFilter4thOrderPhaseComp (float *in, float *low, float *high, UInt32 frames, UInt32 samplingRate, PreviousValues *section1State, PreviousValues *section2State, PreviousValues *phaseCompState);
 
 UInt32 CalculateOffset (UInt64 nanoseconds, UInt32 sampleRate) {
 	return (UInt32)(((double)sampleRate / 1000000000.0) * nanoseconds);
@@ -116,58 +116,58 @@ static inline SInt32	SInt32NativeToLittleEndian(SInt32 inValue) { return inValue
 #endif
 
 #define	kMaxClipSInt8		0.9921875
-#define kFloat32ToSInt8		((Float32)0x80)
+#define kFloat32ToSInt8		((float)0x80)
 #define	kMaxClipSInt16		0.9999694824219
-#define kFloat32ToSInt16	((Float32)0x8000)
+#define kFloat32ToSInt16	((float)0x8000)
 #define	kMaxClipSInt24		0.9999998807907
 #define	kMaxClipSInt32		0.9999999995343
 #define kFloat32ToSInt32	((Float64)0x80000000)
 
-inline static Float32 ClipFloat32ForSInt8(Float32 inSample)
+inline static float ClipFloat32ForSInt8(float inSample)
 {
-	// Float32 maxClip = kMaxSampleSInt8 / (kMaxSampleSInt8 + 1.0);
+	// float maxClip = kMaxSampleSInt8 / (kMaxSampleSInt8 + 1.0);
 	if(inSample > kMaxClipSInt8) return kMaxClipSInt8;
 	if(inSample < -1.0) return -1.0;
 	return inSample;
 }
 
-inline static Float32 ClipFloat32ForSInt16(Float32 inSample)
+inline static float ClipFloat32ForSInt16(float inSample)
 {
-	// Float32 maxClip = kMaxSampleSInt16 / (kMaxSampleSInt16 + 1.0);
+	// float maxClip = kMaxSampleSInt16 / (kMaxSampleSInt16 + 1.0);
 	if(inSample > kMaxClipSInt16) return kMaxClipSInt16;
 	if(inSample < -1.0) return -1.0;
 	return inSample;
 }
 
-inline static Float32 ClipFloat32ForSInt24(Float32 inSample)
+inline static float ClipFloat32ForSInt24(float inSample)
 {
-	// Float32 maxClip = kMaxSampleSInt24 / (kMaxSampleSInt24 + 1.0);
+	// float maxClip = kMaxSampleSInt24 / (kMaxSampleSInt24 + 1.0);
 	if(inSample > kMaxClipSInt24) return kMaxClipSInt24;
 	if(inSample < -1.0) return -1.0;
 	return inSample;
 }
 
-inline static Float32 ClipFloat32ForSInt32(Float32 inSample)
+inline static float ClipFloat32ForSInt32(float inSample)
 {
 	// Float64 maxClip64 = kMaxSampleSInt32 / (kMaxSampleSInt32 + 1.0);
-	// Float32 maxClip = maxClip64;
+	// float maxClip = maxClip64;
 	if(inSample > kMaxClipSInt32) return kMaxClipSInt32;
 	if(inSample < -1.0) return -1.0;
 	return inSample;
 }
 
-//	Float32 -> SInt8
+//	float -> SInt8
 #if defined(__i386__) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-static void	ClipFloat32ToSInt8_4(const Float32* inInputBuffer, SInt8* outOutputBuffer, UInt32 inNumberSamples)
+static void	ClipFloat32ToSInt8_4(const float* inInputBuffer, SInt8* outOutputBuffer, UInt32 inNumberSamples)
 {
   UInt32 theLeftOvers = inNumberSamples % 4;
 	
 	while(inNumberSamples > theLeftOvers)
 	{
-    Float32 theFloat32Value1 = *(inInputBuffer + 0);
-    Float32 theFloat32Value2 = *(inInputBuffer + 1);
-    Float32 theFloat32Value3 = *(inInputBuffer + 2);
-    Float32 theFloat32Value4 = *(inInputBuffer + 3);
+    float theFloat32Value1 = *(inInputBuffer + 0);
+    float theFloat32Value2 = *(inInputBuffer + 1);
+    float theFloat32Value3 = *(inInputBuffer + 2);
+    float theFloat32Value4 = *(inInputBuffer + 3);
 		
 		inInputBuffer += 4;
 		
@@ -187,7 +187,7 @@ static void	ClipFloat32ToSInt8_4(const Float32* inInputBuffer, SInt8* outOutputB
 	
 	while(inNumberSamples > 0)
 	{
-    Float32	theFloat32Value = *inInputBuffer;
+    float	theFloat32Value = *inInputBuffer;
 		
 		++inInputBuffer;
 		
@@ -201,17 +201,17 @@ static void	ClipFloat32ToSInt8_4(const Float32* inInputBuffer, SInt8* outOutputB
 	}
 }
 
-//	Float32 -> SInt16
-static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOutputBuffer, UInt32 inNumberSamples)
+//	float -> SInt16
+static void	ClipFloat32ToSInt16LE_4(const float* inInputBuffer, SInt16* outOutputBuffer, UInt32 inNumberSamples)
 {
   UInt32 theLeftOvers = inNumberSamples % 4;
 
 	while(inNumberSamples > theLeftOvers)
 	{
-    Float32 theFloat32Value1 = *(inInputBuffer + 0);
-    Float32 theFloat32Value2 = *(inInputBuffer + 1);
-    Float32 theFloat32Value3 = *(inInputBuffer + 2);
-    Float32 theFloat32Value4 = *(inInputBuffer + 3);
+    float theFloat32Value1 = *(inInputBuffer + 0);
+    float theFloat32Value2 = *(inInputBuffer + 1);
+    float theFloat32Value3 = *(inInputBuffer + 2);
+    float theFloat32Value4 = *(inInputBuffer + 3);
 		
 		inInputBuffer += 4;
 		
@@ -231,7 +231,7 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 	
 	while(inNumberSamples > 0)
 	{
-    Float32	theFloat32Value = *inInputBuffer;
+    float	theFloat32Value = *inInputBuffer;
 		
 		++inInputBuffer;
 		
@@ -246,20 +246,20 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 }
 
 // Stereo
-	static void	ClipFloat32ToSInt24LE_8(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
+	static void	ClipFloat32ToSInt24LE_8(const float* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 	{
     UInt32 theLeftOvers = inNumberSamples % 8;
 		
 		while(inNumberSamples > theLeftOvers)
 		{
-      Float32 theFloat32Value11 = *(inInputBuffer + 0);
-      Float32 theFloat32Value21 = *(inInputBuffer + 2);
-      Float32 theFloat32Value31 = *(inInputBuffer + 4);
-      Float32 theFloat32Value41 = *(inInputBuffer + 6);
-      Float32 theFloat32Value12 = *(inInputBuffer + 1);
-      Float32 theFloat32Value22 = *(inInputBuffer + 3);
-      Float32 theFloat32Value32 = *(inInputBuffer + 5);
-      Float32 theFloat32Value42 = *(inInputBuffer + 7);
+      float theFloat32Value11 = *(inInputBuffer + 0);
+      float theFloat32Value21 = *(inInputBuffer + 2);
+      float theFloat32Value31 = *(inInputBuffer + 4);
+      float theFloat32Value41 = *(inInputBuffer + 6);
+      float theFloat32Value12 = *(inInputBuffer + 1);
+      float theFloat32Value22 = *(inInputBuffer + 3);
+      float theFloat32Value32 = *(inInputBuffer + 5);
+      float theFloat32Value42 = *(inInputBuffer + 7);
 			
 			inInputBuffer += 8;
 			
@@ -308,7 +308,7 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 		SInt8* theOutputBuffer = (SInt8*)outOutputBuffer;
 		while(inNumberSamples > 0)
 		{
-			 Float32 theFloat32Value = *inInputBuffer;
+			 float theFloat32Value = *inInputBuffer;
 			++inInputBuffer;
 			
 			theFloat32Value = ClipFloat32ForSInt24(theFloat32Value);
@@ -329,19 +329,19 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 			
 }
 			
-//	Float32 -> SInt24
+//	float -> SInt24
 //	we use the MaxSInt32 value because of how we munge the data
 #if 0
-static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
+static void	ClipFloat32ToSInt24LE_4(const float* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 {
 	 UInt32 theLeftOvers = inNumberSamples % 4;
 	
 	while(inNumberSamples > theLeftOvers)
 	{
-		 Float32 theFloat32Value1 = *(inInputBuffer + 0);
-		 Float32 theFloat32Value2 = *(inInputBuffer + 1);
-		 Float32 theFloat32Value3 = *(inInputBuffer + 2);
-		 Float32 theFloat32Value4 = *(inInputBuffer + 3);
+		 float theFloat32Value1 = *(inInputBuffer + 0);
+		 float theFloat32Value2 = *(inInputBuffer + 1);
+		 float theFloat32Value3 = *(inInputBuffer + 2);
+		 float theFloat32Value4 = *(inInputBuffer + 3);
 		
 		inInputBuffer += 4;
 		
@@ -397,7 +397,7 @@ static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOut
 	SInt8* theOutputBuffer = (SInt8*)outOutputBuffer;
 	while(inNumberSamples > 0)
 	{
-		 Float32 theFloat32Value = *inInputBuffer;
+		 float theFloat32Value = *inInputBuffer;
 		++inInputBuffer;
 		
 		theFloat32Value = ClipFloat32ForSInt24(theFloat32Value);
@@ -416,17 +416,17 @@ static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOut
 	}
 }
 #endif
-//	Float32 -> SInt32
-static void	ClipFloat32ToSInt32LE_4(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
+//	float -> SInt32
+static void	ClipFloat32ToSInt32LE_4(const float* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 {
 	 UInt32 theLeftOvers = inNumberSamples % 4;
 	
 	while(inNumberSamples > theLeftOvers)
 	{
-		 Float32 theFloat32Value1 = *(inInputBuffer + 0);
-		 Float32 theFloat32Value2 = *(inInputBuffer + 1);
-		 Float32 theFloat32Value3 = *(inInputBuffer + 2);
-		 Float32 theFloat32Value4 = *(inInputBuffer + 3);
+		 float theFloat32Value1 = *(inInputBuffer + 0);
+		 float theFloat32Value2 = *(inInputBuffer + 1);
+		 float theFloat32Value3 = *(inInputBuffer + 2);
+		 float theFloat32Value4 = *(inInputBuffer + 3);
 		
 		inInputBuffer += 4;
 		
@@ -446,7 +446,7 @@ static void	ClipFloat32ToSInt32LE_4(const Float32* inInputBuffer, SInt32* outOut
 	
 	while(inNumberSamples > 0)
 	{
-		 Float32 theFloat32Value = *inInputBuffer;
+		 float theFloat32Value = *inInputBuffer;
 		++inInputBuffer;
 		
 		theFloat32Value = ClipFloat32ForSInt32(theFloat32Value);
@@ -462,13 +462,13 @@ static void	ClipFloat32ToSInt32LE_4(const Float32* inInputBuffer, SInt32* outOut
 // aml 2.21.02 added second filter state for 4th order filter
 // aml 2.21.02 added more filter state for phase compensator
 // aml 3.4.02 added srcPhase
-IOReturn clipAppleAudioToOutputStreamiSub (const void *mixBuf, void *sampleBuf, __unused PreviousValues * filterState, __unused PreviousValues * filterState2, __unused PreviousValues * phaseCompState, Float32 *low, Float32 *high, UInt32 firstSampleFrame, UInt32 numSampleFrames, UInt32 sampleRate, const IOAudioStreamFormat *streamFormat, SInt16 *iSubBufferMemory, UInt32 *loopCount, SInt32 *iSubBufferOffset, UInt32 iSubBufferLen, iSubAudioFormatType* iSubFormat, float* srcPhase, float* srcState)
+IOReturn clipAppleAudioToOutputStreamiSub (const void *mixBuf, void *sampleBuf, __unused PreviousValues * filterState, __unused PreviousValues * filterState2, __unused PreviousValues * phaseCompState, float *low, float *high, UInt32 firstSampleFrame, UInt32 numSampleFrames, UInt32 sampleRate, const IOAudioStreamFormat *streamFormat, SInt16 *iSubBufferMemory, UInt32 *loopCount, SInt32 *iSubBufferOffset, UInt32 iSubBufferLen, iSubAudioFormatType* iSubFormat, float* srcPhase, float* srcState)
   {
     UInt32	sampleIndex, maxSampleIndex;
     float 	*floatMixBuf;
     SInt16 	*outputBuf;
     float 	highSample;
-    Float32	iSubSampleFloat;
+    float	iSubSampleFloat;
     SInt16	iSubSampleInt;
 
     // aml 3.6.02 storage for src
@@ -637,16 +637,16 @@ const float kOneOverMaxSInt32Value = 1.0/2147483648.0f;
 	***CoeffsFilterOrder2***
 
 	This function fills in the order2 filter coefficients table used in the MonoFilter & StereoFilter functions
-	Float32  *Coeff			: is a pointer to the coefficients table
-	Float32  CutOffFreq		: is the cut off frequency of the filter (in Hertz)
-	Float32  AttAtCutOffFreq: is the attenuation at the cut off frequency (in linear)
+	float  *Coeff			: is a pointer to the coefficients table
+	float  CutOffFreq		: is the cut off frequency of the filter (in Hertz)
+	float  AttAtCutOffFreq: is the attenuation at the cut off frequency (in linear)
 	Float64  SamplingRate	: is the sampling rate frequency (in Hertz)
 */
-void CoeffsFilterOrder2 (Float32 *Coeff, Float32 CutOffFreq, Float32 AttAtCutOffFreq , Float64 SamplingRate)
+void CoeffsFilterOrder2 (float *Coeff, float CutOffFreq, float AttAtCutOffFreq , Float64 SamplingRate)
 {
-	Float32	k, nu0, pi=3.14159265358979, Att, norm;
+	float	k, nu0, pi=3.14159265358979, Att, norm;
 
-	nu0 = (Float32) (CutOffFreq / SamplingRate);
+	nu0 = (float) (CutOffFreq / SamplingRate);
 	Att = 1.0 / AttAtCutOffFreq;
 	k = 1.0 / (tan(pi*nu0));
 	norm = k*(k+Att)+1.0;
@@ -670,12 +670,12 @@ void CoeffsFilterOrder2 (Float32 *Coeff, Float32 CutOffFreq, Float32 AttAtCutOff
 
     This function choose an order2 filter coefficients table used in the MonoFilter & StereoFilter functions
     The coefficients table depend on the sampling rate
-    Float32  *Coeff		: is a pointer on the coefficients table
+    float  *Coeff		: is a pointer on the coefficients table
     Float64  SamplingRate	: is the sampling rate frequency (in Hertz)
     return: - FALSE if the sampling rate frequency doesn't exist
             - TRUE  otherwise...
 */
-Boolean CoeffsFilterOrder2Table (Float32 *Coeff, UInt32 samplingRate)
+Boolean CoeffsFilterOrder2Table (float *Coeff, UInt32 samplingRate)
 {
     Boolean 	success = TRUE;
 
@@ -728,7 +728,7 @@ Boolean CoeffsFilterOrder2Table (Float32 *Coeff, UInt32 samplingRate)
 
 
 // aml 2.18.02 adding fourth order coefficient setting functions
-Boolean Set4thOrderCoefficients (Float32 *b0, Float32 *b1, Float32 *b2, Float32 *a1, Float32 *a2, UInt32 samplingRate)
+Boolean Set4thOrderCoefficients (float *b0, float *b1, float *b2, float *a1, float *a2, UInt32 samplingRate)
 {
     Boolean 	success = TRUE;
 
@@ -781,7 +781,7 @@ Boolean Set4thOrderCoefficients (Float32 *b0, Float32 *b1, Float32 *b2, Float32 
 // aml 2.18.02 adding 4th order phase compensator coefficient setting function
 // this function sets the parameters of a second order all-pass filter that is used to compensate for the phase
 // shift of the 4th order lowpass IIR filter used in the iSub crossover.  Note that a0 and b2 are both 1.0.
-Boolean Set4thOrderPhaseCompCoefficients (Float32 *b0, Float32 *b1, Float32 *a1, Float32 *a2, UInt32 samplingRate)
+Boolean Set4thOrderPhaseCompCoefficients (float *b0, float *b1, float *a1, float *a2, UInt32 samplingRate)
 {
     Boolean 	success = TRUE;
 
@@ -864,21 +864,21 @@ Boolean Set2ndOrderPhaseCompCoefficients (float *b0, float *a1, UInt32 samplingR
 	***MonoFilter***
 
 	Mono Order2 Filter
-	Float32  *in	: is a pointer to the entry array -> signal to filter...
-	Float32  *low	: is a pointer to the low-pass filtered signal
-	Float32  *high 	: is a pointer to the high-pass filtered signal
+	float  *in	: is a pointer to the entry array -> signal to filter...
+	float  *low	: is a pointer to the low-pass filtered signal
+	float  *high 	: is a pointer to the high-pass filtered signal
 	UInt32   samples: is the number of samples in each array
 	Float64  SamplingRate	: is the sampling rate frequency (in Hertz)
 	At the n instant: x is x[n], xx is x[n-1], xxx is x[n-2] (it's the same for y)
 */
-void MonoFilter (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 samplingRate)
+void MonoFilter (float *in, float *low, float *high, UInt32 frames, UInt32 samplingRate)
 {
 	UInt32	idx;
 #if !FLOATLIB
 	Boolean	success;
 #endif
-	Float32	LP_Coeff[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-	Float32	x, xx, xxx, y, yy, yyy;
+	float	LP_Coeff[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+	float	x, xx, xxx, y, yy, yyy;
 
 	// init
 #if FLOATLIB
@@ -914,19 +914,19 @@ End:
     ***StereoFilter***
 
     Stereo Order2 Filter
-    Float32  *in		: is a pointer on the entry array -> signal to filter...
-    Float32  *low		: is a pointer on the low-pass filtered signal
-    Float32  *high 		: is a pointer on the high-pass filtered signal
+    float  *in		: is a pointer on the entry array -> signal to filter...
+    float  *low		: is a pointer on the low-pass filtered signal
+    float  *high 		: is a pointer on the high-pass filtered signal
     UInt32   samples		: is the number of samples in each array
     Float64  SamplingRate	: is the sampling rate frequency (in Hertz)
     At the n instant: x is x[n], x_1 is x[n-1], x_2 is x[n-2] (it's the same for y)
 */
-void StereoFilter (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue)
+void StereoFilter (float *in, float *low, float *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue)
 {
     UInt32	idx;
     Boolean	success;
-    Float32	LP_Coeff[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    Float32	xl, xr, yl, yr;
+    float	LP_Coeff[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    float	xl, xr, yl, yr;
 
     // Get the filter coefficents
     //CoeffsFilterOrder2 (&LP_Coeff, 120, 0.707, SamplingRate); //don't used because of the tan() function
@@ -964,17 +964,17 @@ End:
 // aml 2.15.02, stereo filter that runs twice for double the rolloff
 // tried to make this more efficient and readable that previous filter
 // ideally all this will move into a class which will keep it's own storage etc.
-void StereoFilter4thOrder (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue, PreviousValues *theValue2)
+void StereoFilter4thOrder (float *in, float *low, float *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *theValue, PreviousValues *theValue2)
 {
     UInt32	i;
-//    Float32	LP_Coeff[5];
-    Float32	inL, inR, outL1, outR1, outL, outR;
+//    float	LP_Coeff[5];
+    float	inL, inR, outL1, outR1, outL, outR;
 
-    Float32	b0 = 0.0, b1 = 0.0, b2 = 0.0, a1 = 0.0, a2 = 0.0;
-    Float32	inLTap1, inLTap2, inRTap1, inRTap2;
-    Float32	outLTap1, outLTap2, outRTap1, outRTap2;
-    Float32	inLTap1_2, inLTap2_2, inRTap1_2, inRTap2_2;
-    Float32	outLTap1_2, outLTap2_2, outRTap1_2, outRTap2_2;
+    float	b0 = 0.0, b1 = 0.0, b2 = 0.0, a1 = 0.0, a2 = 0.0;
+    float	inLTap1, inLTap2, inRTap1, inRTap2;
+    float	outLTap1, outLTap2, outRTap1, outRTap2;
+    float	inLTap1_2, inLTap2_2, inRTap1_2, inRTap2_2;
+    float	outLTap1_2, outLTap2_2, outRTap1_2, outRTap2_2;
 
     // copy to local variables to avoid structure referencing during inner loop
     inLTap1 = theValue->xl_1;
@@ -1075,24 +1075,24 @@ void StereoFilter4thOrder (Float32 *in, Float32 *low, Float32 *high, UInt32 fram
 // aml 2.15.02, stereo filter that runs twice for double the rolloff
 // tried to make this more efficient and readable that previous filter
 // ideally all this will move into a class which will keep it's own storage etc.
-void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *section1State, PreviousValues *section2State, PreviousValues *phaseCompState)
+void StereoFilter4thOrderPhaseComp (float *in, float *low, float *high, UInt32 frames, UInt32 SamplingRate, PreviousValues *section1State, PreviousValues *section2State, PreviousValues *phaseCompState)
 {
     UInt32	i;
-    Float32	inL, inR, outL1, outR1, outL, outR, inPhaseCompL, inPhaseCompR;
+    float	inL, inR, outL1, outR1, outL, outR, inPhaseCompL, inPhaseCompR;
 
     // shared coefficients for second order sections
-    Float32	b0 = 0.0, b1 = 0.0, b2 = 0.0, a1 = 0.0, a2 = 0.0;
+    float	b0 = 0.0, b1 = 0.0, b2 = 0.0, a1 = 0.0, a2 = 0.0;
     // coefficients for phase compensator
-    Float32	bp0 = 0.0, bp1 = 0.0, ap1 = 0.0, ap2 = 0.0;
+    float	bp0 = 0.0, bp1 = 0.0, ap1 = 0.0, ap2 = 0.0;
     // taps for second order section 1
-    Float32	inLTap1, inLTap2, inRTap1, inRTap2;
-    Float32	outLTap1, outLTap2, outRTap1, outRTap2;
+    float	inLTap1, inLTap2, inRTap1, inRTap2;
+    float	outLTap1, outLTap2, outRTap1, outRTap2;
     // taps for second order section 2
-    Float32	inLTap1_2, inLTap2_2, inRTap1_2, inRTap2_2;
-    Float32	outLTap1_2, outLTap2_2, outRTap1_2, outRTap2_2;
+    float	inLTap1_2, inLTap2_2, inRTap1_2, inRTap2_2;
+    float	outLTap1_2, outLTap2_2, outRTap1_2, outRTap2_2;
     // taps for phase compensator
-    Float32	inLTap1_p, inLTap2_p, inRTap1_p, inRTap2_p;
-    Float32	outLTap1_p, outLTap2_p, outRTap1_p, outRTap2_p;
+    float	inLTap1_p, inLTap2_p, inRTap1_p, inRTap2_p;
+    float	outLTap1_p, outLTap2_p, outRTap1_p, outRTap2_p;
 
     // copy to state local variables to avoid structure referencing during inner loop
     // section 1
@@ -3751,9 +3751,9 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	UInt32 firstSample = firstSampleFrame * streamFormat->fNumChannels;
 	UInt32 numSamples = numSampleFrames * streamFormat->fNumChannels;
 	int lastSample = firstSample + numSamples;
-	Float32 *floatMixBuf = ((Float32*)mixBuf) + firstSample;
-	Float32 *floatMixBuf2 = ((Float32*)mixBuf); // + firstSample;
-	//Float32 *floatMixBufOld; must be global
+	float *floatMixBuf = ((float*)mixBuf) + firstSample;
+	float *floatMixBuf2 = ((float*)mixBuf); // + firstSample;
+	//float *floatMixBufOld; must be global
 	SInt16 *theOutputBufferSInt16;
 	SInt8  *theOutputBufferSInt8;
 	UInt8* theOutputBufferSInt24;
@@ -3767,8 +3767,8 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 
 	if (mSwVolume && (streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// software volume / mute for digital outputs without hardware volume
-		const Float32 gl = mSwMuted ? 0.0f : mSwGainL;
-		const Float32 gr = mSwMuted ? 0.0f : mSwGainR;
+		const float gl = mSwMuted ? 0.0f : mSwGainL;
+		const float gr = mSwMuted ? 0.0f : mSwGainR;
 		const UInt32 nch = streamFormat->fNumChannels ? streamFormat->fNumChannels : 2;
 		if (gl != 1.0f || gr != 1.0f) {
 			for (UInt32 i = 0, c = 0; i < numSamples; i++) {
@@ -3805,15 +3805,15 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			 */
 			//Simple mixer
 			for (int i=firstSample; i<lastSample; i+=2) {
-				Float32 L = floatMixBuf2[i];
-				Float32 R = floatMixBuf2[i+1];
+				float L = floatMixBuf2[i];
+				float R = floatMixBuf2[i+1];
 				floatMixBuf2[i] += (R/10.0F) * base;
 				floatMixBuf2[i+1] += (L/10.0F) * base;
 			}			
 		} else
 			for (int i=0; i<(int)numSamples; i+=2) {
-				Float32 L = floatMixBuf[i];
-				Float32 R = floatMixBuf[i+1];
+				float L = floatMixBuf[i];
+				float R = floatMixBuf[i+1];
 				floatMixBuf[i] -= (R/10.0F) * base;
 				floatMixBuf[i+1] -= (L/10.0F) * base;
 			}			
@@ -3925,9 +3925,9 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			// it is some kind of floating point format
 			if ((streamFormat->fBitWidth == 32) && (streamFormat->fBitDepth == 32) &&
 				(streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian)) {
-				// it's Float32, so we are just going to copy the data
-				memcpy(&((Float32 *) sampleBuf)[firstSample], &floatMixBuf2[firstSample],
-					   numSamples * sizeof (Float32));
+				// it's float, so we are just going to copy the data
+				memcpy(&((float *) sampleBuf)[firstSample], &floatMixBuf2[firstSample],
+					   numSamples * sizeof (float));
 			} else
 				IOLog("clipOutputSamples: can't handle floats with a bit width of %d, bit depth of %d, "
 						 "and/or the given byte order", streamFormat->fBitWidth, streamFormat->fBitDepth);
@@ -3965,9 +3965,9 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 	
 	// figure out what sort of blit we need to do
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
-		// it's linear PCM, which means the target is Float32 and we will be calling a blitter, which
+		// it's linear PCM, which means the target is float and we will be calling a blitter, which
 		// works in samples not frames
-		Float32 *floatDestBuf = (Float32 *) destBuf;
+		float *floatDestBuf = (float *) destBuf;
 		
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length
@@ -4082,7 +4082,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 			//Меняю местами значения для левого и правого канала
 			if(mDevice && mDevice->mSwitchCh && (streamFormat->fNumChannels > 1)) {
 				UInt32 i;
-				Float32 tempSamples;
+				float tempSamples;
 				
 				for(i = 0; i < numSamples; i+= streamFormat->fNumChannels) {
 					tempSamples = floatDestBuf[i];
@@ -4095,8 +4095,8 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 			// it is some kind of floating point format
 			if ((streamFormat->fBitWidth == 32) && (streamFormat->fBitDepth == 32) &&
 				(streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian)) {
-				// it's Float32, so we are just going to copy the data
-				memcpy(floatDestBuf, &((Float32 *) sampleBuf)[firstSample], numSamples * sizeof (Float32));
+				// it's float, so we are just going to copy the data
+				memcpy(floatDestBuf, &((float *) sampleBuf)[firstSample], numSamples * sizeof (float));
 			} else
 				IOLog("convertInputSamples: can't handle floats with a bit width of %d, bit depth of %d, "
 						 "and/or the given byte order", streamFormat->fBitWidth, streamFormat->fBitDepth);

@@ -46,9 +46,9 @@ public:
 	// Software volume for digital (HDMI/DP) outputs that have no hardware volume
 	bool mSwVolume;
 	bool mSwMuted;
-	Float32 mSwGainL;
-	Float32 mSwGainR;
-	static Float32 swGainFromLevel(SInt32 level);
+	float mSwGainL;
+	float mSwGainR;
+	static float swGainFromLevel(SInt32 level);
 
 	// cue8chalk: flag for volume change fix
 	bool mEnableVolumeChangeFix;
